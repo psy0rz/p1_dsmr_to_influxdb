@@ -8,6 +8,8 @@ import config
 import decimal
 import time
 
+
+prev_gas=None
 while True:
     try:
         #influx db settings
@@ -25,7 +27,9 @@ while True:
         
 
         #read telegrams
-        print("Waiting for next P1 port measurement..")
+        print("Waiting for P1 port measurement..")
+
+
         for telegram in serial_reader.read():
             influx_measurement={
                 "measurement": "P1 values",
@@ -42,23 +46,28 @@ while True:
             for key,value in telegram.items():
                 name=key
                 
+                #determine obis name
                 for obis_name in dir(obis_references):
                     if getattr(obis_references,obis_name)==key:
                         name=obis_name
                         break
-                
-                #add to influxdb points list?
+
+
+                #is it a number?
                 if isinstance(value.value, int) or isinstance(value.value, decimal.Decimal):
-                    influx_measurement['fields'][name]=float(value.value)
+                    nr=float(value.value)
+                    #filter duplicates gas , since its hourly. (we want to be able to differentiate it, duplicate values confuse that)
+                    if name=='HOURLY_GAS_METER_READING':
+                        if prev_gas!=None and nr!=prev_gas:
+                            influx_measurement['fields'][name]=float(value.value)
+                        prev_gas=nr
+                    else:
+                        influx_measurement['fields'][name]=float(value.value)
 
-                report.append("{} = {} {}".format(name, value.value, value.unit or ""))
 
-            report.sort()
-            pprint.pprint(report)
-            print()
-
-            print(influx_measurement)
-            db.write_points([influx_measurement])
+            pprint.pprint(influx_measurement)
+            if len(influx_measurement['fields']):
+                db.write_points([influx_measurement])
     except Exception as e:
         print(str(e))
         print("Pausing and restarting...")
