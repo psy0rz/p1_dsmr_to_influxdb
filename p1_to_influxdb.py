@@ -45,24 +45,25 @@ while True:
             #create influx measurement record
             for key,value in telegram.items():
                 name=key
-                
-                #determine obis name
-                for obis_name in dir(obis_references):
-                    if getattr(obis_references,obis_name)==key:
-                        name=obis_name
-                        break
+
+                if hasattr(value, "value"):
+                    #determine obis name
+                    for obis_name in dir(obis_references):
+                        if getattr(obis_references,obis_name)==key:
+                            name=obis_name
+                            break
 
 
-                #is it a number?
-                if isinstance(value.value, int) or isinstance(value.value, decimal.Decimal):
-                    nr=float(value.value)
-                    #filter duplicates gas , since its hourly. (we want to be able to differentiate it, duplicate values confuse that)
-                    if name=='HOURLY_GAS_METER_READING':
-                        if prev_gas!=None and nr!=prev_gas:
+                    #is it a number?
+                    if isinstance(value.value, int) or isinstance(value.value, decimal.Decimal):
+                        nr=float(value.value)
+                        #filter duplicates gas , since its hourly. (we want to be able to differentiate it, duplicate values confuse that)
+                        if name=='HOURLY_GAS_METER_READING':
+                            if prev_gas!=None and nr!=prev_gas:
+                                influx_measurement['fields'][name]=float(value.value)
+                            prev_gas=nr
+                        else:
                             influx_measurement['fields'][name]=float(value.value)
-                        prev_gas=nr
-                    else:
-                        influx_measurement['fields'][name]=float(value.value)
 
 
             pprint.pprint(influx_measurement)
