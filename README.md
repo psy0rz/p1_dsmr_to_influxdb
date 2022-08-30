@@ -4,6 +4,8 @@ Dus niet alleen het verbruik maar ook interesante dingen zoals het wattage per f
 
 Het script stuurt de informatie door naar InfluxDB. Met Grafana zijn er mooie grafieken van te maken.
 
+Let op: Gas meter waarden komen slechts ieder uur voorbij, dus dat kan even duren. 
+
 Importeer de json file in garafa om meteen een mooi dashboard te krijgen.
 
 Live demo: https://grafana1.datux.nl/d/LIOTB61Zz/power-usage?orgId=1&refresh=10s
