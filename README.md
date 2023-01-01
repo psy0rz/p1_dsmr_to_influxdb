@@ -7,3 +7,9 @@ Het script stuurt de informatie door naar InfluxDB. Met Grafana zijn er mooie gr
 Importeer de json file in garafa om meteen een mooi dashboard te krijgen.
 
 Live demo: https://grafana1.datux.nl/d/LIOTB61Zz/power-usage?orgId=1&refresh=10s
+
+
+Additional Python3 libraries:
+
+- sudo apt install python3-pip
+- sudo pip3 install dsmr_parser influxdb
