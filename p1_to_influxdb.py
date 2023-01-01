@@ -12,10 +12,10 @@ import time
 prev_gas=None
 while True:
     try:
-        #influx db settings
-        db = InfluxDBClient(config.host,config.port, config.username, config.password, config.database)
+        ## Influx DB settings
+        db = InfluxDBClient(config.host,config.port, config.username, config.password, config.database, ssl=True, verify_ssl=True)
 
-        #serial port settings and version
+        ## Serial port settings and version
         serial_reader = SerialReader(
             device=config.serial_port,
             serial_settings=SERIAL_SETTINGS_V4,
@@ -23,10 +23,10 @@ while True:
         )
 
         print("Connecting db")
-        db.create_database('energy')
-        
+#        db.create_database('energy')
 
-        #read telegrams
+
+        ## Read telegrams
         print("Waiting for P1 port measurement..")
 
 
@@ -42,23 +42,23 @@ while True:
             }
             report=[]
 
-            #create influx measurement record
+            ## Create influx measurement record
             for key,value in telegram.items():
                 name=key
 
                 if hasattr(value, "value"):
-                    #determine obis name
+                    ## Determine obis name
                     for obis_name in dir(obis_references):
                         if getattr(obis_references,obis_name)==key:
                             name=obis_name
                             break
-                    
-                    #Filter out failure log entries
+
+                    ## Filter out failure log entries
                     if name!="POWER_EVENT_FAILURE_LOG": 
-                    #is it a number?
+                    ## is it a number?
                         if isinstance(value.value, int) or isinstance(value.value, decimal.Decimal):
                             nr=float(value.value)
-                            #filter duplicates gas , since its hourly. (we want to be able to differentiate it, duplicate values confuse that)
+                            ## Filter duplicates gas , since its hourly. (we want to be able to differentiate it, duplicate values confuse that)
                             if name=='HOURLY_GAS_METER_READING':
                                 if prev_gas!=None and nr!=prev_gas:
                                     influx_measurement['fields'][name]=float(value.value)
@@ -74,6 +74,3 @@ while True:
         print(str(e))
         print("Pausing and restarting...")
         time.sleep(10)
-
-
-
