@@ -1,0 +1,25 @@
+services:
+
+  app: 
+   environment:
+    - DB_HOST=influxdb
+    - SERIAL_PORT=/dev/ttyUSB0
+    - DB_PORT=8086
+    - DB_USER=energy
+    - DB_NAME=energy
+    - DB_PASSWORD=bla
+
+   stop_signal: kill
+   build: .
+
+   # Dont forget to map the correct device:
+   devices:
+    - /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AL02WKWL-if00-port0:/dev/ttyUSB0
+
+
+
+
+
+
+
+

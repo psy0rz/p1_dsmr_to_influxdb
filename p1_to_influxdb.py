@@ -12,6 +12,8 @@ import time
 prev_gas=None
 while True:
     try:
+        print("Connecting db")
+
         #influx db settings
         db = InfluxDBClient(config.host,config.port, config.username, config.password, config.database)
 
@@ -22,7 +24,6 @@ while True:
             telegram_specification=telegram_specifications.V4
         )
 
-        print("Connecting db")
         db.create_database('energy')
         
 
